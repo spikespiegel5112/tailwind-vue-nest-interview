@@ -8,11 +8,13 @@
         </h1>
         <div class="main">
             <ul class="pl-1">
-                <li v-for="(item, index) in state.toDoList" :key="index" class="flex items-center">
+                <li v-for="(item, index) in state.toDoList" :key="index"
+                    class="flex transition-all items-center border-b-2" :class="activeStyle(item)">
                     <input type="checkbox" class="inline-flex form-checkbox rounded text-blue-1000 text-2xl" />
                     <input v-if="item.isEditing" type="text"
-                        class="inline-flex flex-1 h-10 ml-4 form-input p-0 bg-black leading-7" v-model="item.content">
-                    <span v-else class="inline-flex flex-1 h-10 ml-4 p-0 h-8 leading-10 border-b">
+                        class="inline-flex flex-1 h-10 ml-4 p-0 bg-black leading-7  bg-transparent focus:border-transparent focus:outline-none"
+                        v-model="item.content">
+                    <span v-else class="inline-flex flex-1 h-10 ml-4 p-0 h-8 leading-10">
                         {{ item.content }}
                     </span>
                     <div v-if="item.isEditing" class="inline-block w-15">
@@ -34,7 +36,7 @@
 </template>
 
 <script lang="tsx" setup>
-import { reactive } from 'vue'
+import { computed, reactive } from 'vue'
 
 interface ToDo {
     content: string,
@@ -47,8 +49,16 @@ const state: any = reactive({
         content: 'sssssssssssssss',
         isEditing: false,
         isChecked: false
+    }, {
+        content: 'sssssssssssssss',
+        isEditing: false,
+        isChecked: false
     }] as ToDo[]
 })
+
+const activeStyle = (item: ToDo) => {
+    return item.isEditing ? 'border-b-gray-100' : 'border-b-gray-500/10'
+}
 
 const handleEditToDo = (item: ToDo) => {
     item.isEditing = !item.isEditing
