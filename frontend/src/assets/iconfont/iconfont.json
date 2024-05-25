@@ -1,0 +1,44 @@
+{
+  "id": "",
+  "name": "",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "40246269",
+      "name": "copy",
+      "font_class": "copy",
+      "unicode": "e639",
+      "unicode_decimal": 58937
+    },
+    {
+      "icon_id": "40246270",
+      "name": "delete",
+      "font_class": "delete",
+      "unicode": "e63a",
+      "unicode_decimal": 58938
+    },
+    {
+      "icon_id": "40246271",
+      "name": "edit",
+      "font_class": "edit",
+      "unicode": "e63b",
+      "unicode_decimal": 58939
+    },
+    {
+      "icon_id": "40246293",
+      "name": "subscribe-add",
+      "font_class": "subscribe-add",
+      "unicode": "e63d",
+      "unicode_decimal": 58941
+    },
+    {
+      "icon_id": "40246347",
+      "name": "save",
+      "font_class": "save",
+      "unicode": "e643",
+      "unicode_decimal": 58947
+    }
+  ]
+}
