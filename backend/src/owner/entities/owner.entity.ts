@@ -6,14 +6,14 @@ import { PrimaryGeneratedColumn, Column, OneToMany, Entity } from 'typeorm';
 @ObjectType()
 export class Owner {
   @PrimaryGeneratedColumn()
-  @Field(type=> Int)
+  @Field((type) => Int)
   id: number;
 
   @Column()
   @Field()
   name: string;
 
-  @OneToMany(() => Pet, pet => pet.owner)
-  @Field(type=> [Pet], {nullable: true})
-  pets? : Pet[];
+  @OneToMany(() => Pet, (pet) => pet.owner)
+  @Field((type) => [Pet], { nullable: true })
+  pets?: Pet[];
 }

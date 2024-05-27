@@ -1,11 +1,17 @@
 import { Module } from '@nestjs/common';
-import { ToDoListModule } from './toDoList/todolist.module';
+import { ToDoListModule } from './ToDoList/todolist.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { ToDoList } from './toDoList/entities/todolist.entity';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import envConfig from '../config/env';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true, // 设置为全局
+      envFilePath: [envConfig.path],
+    }),
+    ToDoListModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'baobaojs.com',
@@ -13,12 +19,9 @@ import { ToDoList } from './toDoList/entities/todolist.entity';
       username: 'todo-list',
       password: '8jxETniXpfzrXNSt',
       database: 'todo-list',
-      synchronize: true,
-      autoLoadEntities: true,
+      entities: ['dist/**/ToDoList/entities/*.entity{.ts,.js}'],
+      synchronize: false,
     }),
-    ToDoListModule,
   ],
 })
-export class AppModule {
-  constructor(private dataSource: DataSource) {}
-}
+export class AppModule {}

@@ -1,31 +1,28 @@
 <template>
     <div class="todolist_container">
-        <div class="about">
-            <h1>New to do</h1>
+        <div class="about mb-5" @click="handleCreateToDo">
+            <span class="inline-block text-2xl">New to do</span>
         </div>
-        <h1 className="text-3xl font-bold underline">
-            Hello world!
-        </h1>
         <div class="main">
             <ul class="pl-1">
                 <li v-for="(item, index) in state.toDoList" :key="index"
-                    class="flex transition-all items-center border-b-2" :class="activeStyle(item)">
+                    class="flex mt-2 mb-2 transition-all items-center border-b-2" :class="activeStyle(item)">
                     <input type="checkbox" class="inline-flex form-checkbox rounded text-blue-1000 text-2xl" />
-                    <input v-if="item.isEditing" type="text"
+                    <input v-if="item.isEditing" type="textarea"
                         class="inline-flex flex-1 h-10 ml-4 p-0 bg-black leading-7  bg-transparent focus:border-transparent focus:outline-none"
                         v-model="item.content">
                     <span v-else class="inline-flex flex-1 h-10 ml-4 p-0 h-8 leading-10">
                         {{ item.content }}
                     </span>
                     <div v-if="item.isEditing" class="inline-block w-15">
-                        <span class="inline-block ml-8 iconfont icon-save text-xl text-green-500"
+                        <span class="inline-block ml-6 iconfont icon-save text-xl text-green-500"
                             @click="handleConfirmEditToDo(item)"></span>
-                        <span class="inline-block ml-8 iconfont icon-delete text-2xl text-red-500"
+                        <span class="inline-block ml-6 iconfont icon-delete text-2xl text-red-500"
                             @click="handleDeleteToDo"></span>
                     </div>
                     <div v-else class="inline-block w-15">
-                        <span class="inline-block ml-8 iconfont icon-edit text-xl" @click="handleEditToDo(item)"></span>
-                        <span class="inline-block ml-8 iconfont icon-delete text-2xl text-red-500"
+                        <span class="inline-block ml-6 iconfont icon-edit text-xl" @click="handleEditToDo(item)"></span>
+                        <span class="inline-block ml-6 iconfont icon-delete text-2xl text-red-500"
                             @click="handleDeleteToDo"></span>
                     </div>
                 </li>
@@ -70,6 +67,14 @@ const handleConfirmEditToDo = (item: ToDo) => {
 
 const handleDeleteToDo = () => {
 
+}
+
+const handleCreateToDo = () => {
+    state.toDoList.push({
+        content: '',
+        isEditing: true,
+        isChecked: false
+    })
 }
 </script>
 

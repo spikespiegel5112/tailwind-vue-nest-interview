@@ -1,16 +1,18 @@
+import { DefaultValuePipe } from '@nestjs/common';
+import { Default } from 'sequelize-typescript';
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
-export class ToDoList {
+@Entity('ToDoList')
+export class ToDoListEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  firstName: string;
+  @Column({ nullable: true, default: null })
+  content?: string;
 
-  @Column()
-  lastName: string;
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  create_time: Date;
 
-  @Column({ default: true })
-  isActive: boolean;
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  update_time: Date;
 }
