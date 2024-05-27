@@ -10,6 +10,7 @@ const pathSrc = path.resolve(__dirname, 'src')
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue(), vueJsx(), VueDevTools()],
+  base: './',
   resolve: {
     alias: {
       '~/': `${pathSrc}/`,

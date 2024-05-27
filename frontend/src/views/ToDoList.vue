@@ -33,7 +33,9 @@
 </template>
 
 <script lang="tsx" setup>
-import { computed, reactive } from 'vue'
+import { computed, onMounted, reactive } from 'vue'
+
+import { getToDoListRequest } from '@/api/toDoListApi'
 
 interface ToDo {
     content: string,
@@ -52,6 +54,15 @@ const state: any = reactive({
         isChecked: false
     }] as ToDo[]
 })
+
+const getToDoList = () => {
+    getToDoListRequest().then((response: any) => {
+        console.log(response)
+        state.toDoList = response
+    }).catch((error: any) => {
+        console.log(error)
+    })
+}
 
 const activeStyle = (item: ToDo) => {
     return item.isEditing ? 'border-b-gray-100' : 'border-b-gray-500/10'
@@ -76,6 +87,11 @@ const handleCreateToDo = () => {
         isChecked: false
     })
 }
+
+onMounted(() => {
+    getToDoList()
+})
+
 </script>
 
 <style>
