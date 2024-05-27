@@ -1,10 +1,11 @@
 import axios from 'axios'
 console.log('service+++++', import.meta.env)
 
-const _baseURL: string = import.meta.env.VITE_BASE_URL
+// const _baseURL: string = import.meta.env.VITE_BASE_URL
+const _baseURL: string = 'api'
 
 const service: any = axios.create({
-  baseURL: _baseURL,
+  baseURL: '',
   // 超时
   timeout: 10000,
   withCredentials: false,
