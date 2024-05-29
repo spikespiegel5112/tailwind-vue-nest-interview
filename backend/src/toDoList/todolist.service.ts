@@ -29,10 +29,14 @@ export class ToDoListService {
     return await this.toDoListRepository.save(post);
   }
 
-  async updateById(id, post): Promise<ToDoListEntity> {
-    const existPost = await this.toDoListRepository.findOne(id);
+  async updateById(post): Promise<ToDoListEntity> {
+    const existPost = await this.toDoListRepository.findOne({
+      where: {
+        id: post.id,
+      },
+    });
     if (!existPost) {
-      throw new HttpException(`id为${id}的文章不存在`, 401);
+      throw new HttpException(`id为${post.id}的文章不存在`, 401);
     }
     const updatePost = this.toDoListRepository.merge(existPost, post);
     return this.toDoListRepository.save(updatePost);

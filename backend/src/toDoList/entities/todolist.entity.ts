@@ -7,6 +7,9 @@ export class ToDoListEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ nullable: false, default: false })
+  checked?: boolean;
+
   @Column({ nullable: true, default: null })
   content?: string;
 

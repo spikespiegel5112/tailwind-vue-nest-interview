@@ -7,15 +7,31 @@ import { baseURL } from '@/utils/service'
 
 export const getToDoListRequest = () => {
   return service({
-    url: baseURL + '/todolist/get',
+    url: '/todolist/get',
     method: 'GET'
   })
 }
 
 export const createToDoListRequest = (params: any) => {
   return service({
-    url: baseURL + '/todolist/create',
+    url: '/todolist/create',
     method: 'POST',
     data: params
+  })
+}
+
+export const updateToDoListRequest = (data: any) => {
+  return service({
+    url: `/todolist/update`,
+    method: 'PUT',
+    data
+  })
+}
+
+export const deleteToDoListRequest = (data: any) => {
+  return service({
+    url: `/todolist/delete`,
+    method: 'DELETE',
+    data
   })
 }

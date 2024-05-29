@@ -31,13 +31,13 @@ export class ToDoListController {
     });
   }
 
-  @Put(':id')
-  async update(@Param('id') id, @Body() post) {
-    return await this.ToDoListService.updateById(id, post);
+  @Put('update')
+  async update(@Body() post) {
+    return await this.ToDoListService.updateById(post);
   }
 
-  @Delete('id')
-  async remove(@Param('id') id) {
+  @Delete('delete')
+  async remove(@Body() id) {
     return await this.ToDoListService.remove(id);
   }
 }

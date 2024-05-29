@@ -7,7 +7,8 @@
             <ul class="pl-1">
                 <li v-for="(item, index) in state.toDoList" :key="index"
                     class="flex mt-2 mb-2 transition-all items-center border-b-2" :class="activeStyle(item)">
-                    <input type="checkbox" class="inline-flex form-checkbox rounded text-blue-1000 text-2xl" />
+                    <input type="checkbox" class="inline-flex form-checkbox rounded text-blue-1000 text-2xl"
+                        v-model="item.checked" @change="handleCheckToDo(item)" />
                     <input v-if="item.isEditing" type="textarea"
                         class="inline-flex flex-1 h-10 ml-4 p-0 bg-black leading-7  bg-transparent focus:border-transparent focus:outline-none"
                         v-model="item.content">
@@ -16,14 +17,14 @@
                     </span>
                     <div v-if="item.isEditing" class="inline-block w-15">
                         <span class="inline-block ml-6 iconfont icon-save text-xl text-green-500"
-                            @click="handleConfirmEditToDo(item)"></span>
+                            @click="handleConfirmUpdateToDo(item)"></span>
                         <span class="inline-block ml-6 iconfont icon-delete text-2xl text-red-500"
-                            @click="handleDeleteToDo"></span>
+                            @click="handleDeleteToDo(item)"></span>
                     </div>
                     <div v-else class="inline-block w-15">
                         <span class="inline-block ml-6 iconfont icon-edit text-xl" @click="handleEditToDo(item)"></span>
                         <span class="inline-block ml-6 iconfont icon-delete text-2xl text-red-500"
-                            @click="handleDeleteToDo"></span>
+                            @click="handleDeleteToDo(item)"></span>
                     </div>
                 </li>
             </ul>
@@ -35,28 +36,24 @@
 <script lang="tsx" setup>
 import { computed, onMounted, reactive } from 'vue'
 
-import { getToDoListRequest } from '@/api/toDoListApi'
+import { getToDoListRequest, createToDoListRequest, updateToDoListRequest, deleteToDoListRequest, checkToDoListRequest } from '@/api/toDoListApi'
 
 interface ToDo {
+    id: number,
     content: string,
     isEditing: boolean,
-    isChecked: boolean
+    checked: boolean
 }
 
 const state: any = reactive({
-    toDoList: [{
-        content: 'sssssssssssssss',
-        isEditing: false,
-        isChecked: false
-    }, {
-        content: 'sssssssssssssss',
-        isEditing: false,
-        isChecked: false
-    }] as ToDo[]
+    toDoList: [] as ToDo[],
+    formData: {
+        content: ''
+    }
 })
 
 const getToDoList = () => {
-    getToDoListRequest().then((response: any) => {
+    getToDoListRequest().then((response: ToDo[]) => {
         console.log(response)
         state.toDoList = response
     }).catch((error: any) => {
@@ -70,21 +67,64 @@ const activeStyle = (item: ToDo) => {
 
 const handleEditToDo = (item: ToDo) => {
     item.isEditing = !item.isEditing
+    state.formData.content = item.content
 }
 
-const handleConfirmEditToDo = (item: ToDo) => {
-    item.isEditing = false
+const handleConfirmUpdateToDo = (item: ToDo) => {
+    if (item.id) {
+        updateToDoListRequest({
+            id: item.id,
+            content: item.content
+        }).then((response: any) => {
+            item.id = response.id
+            item.content = response.content
+            item.isEditing = false
+        }).catch((error: any) => {
+            console.log(error)
+        })
+    } else {
+        createToDoListRequest({
+            content: item.content
+        }).then((response: any) => {
+            item.id = response.id
+            item.content = response.content
+            item.isEditing = false
+        }).catch((error: any) => {
+            console.log(error)
+        })
+    }
+
 }
 
-const handleDeleteToDo = () => {
-
+const handleDeleteToDo = (item: ToDo) => {
+    deleteToDoListRequest({
+        id: item.id
+    }).then((response: any) => [
+        getToDoList()
+    ]).catch((error: any) => {
+    })
 }
 
 const handleCreateToDo = () => {
+    state.formData.content = ''
     state.toDoList.push({
         content: '',
         isEditing: true,
-        isChecked: false
+        checked: false
+    })
+
+}
+
+const handleCheckToDo = (item: ToDo) => {
+    console.log(item)
+    updateToDoListRequest({
+        checked: item.checked
+    }).then((response: any) => {
+        item.id = response.id
+        item.checked = response.checked
+        item.isEditing = false
+    }).catch((error: any) => {
+        console.log(error)
     })
 }
 
