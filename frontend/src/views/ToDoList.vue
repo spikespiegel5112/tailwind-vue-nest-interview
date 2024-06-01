@@ -17,7 +17,7 @@
                     </span>
                     <div v-if="item.isEditing" class="inline-block w-15">
                         <span class="inline-block ml-6 iconfont icon-save text-xl text-green-500"
-                            @click="handleConfirmUpdateToDo(item)"></span>
+                            @click="handleConfirmUpdateToDoToRedis(item)"></span>
                         <span class="inline-block ml-6 iconfont icon-delete text-2xl text-red-500"
                             @click="handleDeleteToDo(item)"></span>
                     </div>
@@ -36,10 +36,11 @@
 <script lang="tsx" setup>
 import { computed, onMounted, reactive } from 'vue'
 
-import { getToDoListRequest, createToDoListRequest, updateToDoListRequest, deleteToDoListRequest, checkToDoListRequest } from '@/api/toDoListApi'
+import { getToDoListRequest, createToDoListRequest, updateToDoListRequest, toDoListDeleteRequest, checkToDoListRequest, todolistUpdateToRedisRequest, toDoListDeleteFromRedisRequest } from '@/api/toDoListApi'
 
 interface ToDo {
     id: number,
+    contentName: string,
     content: string,
     isEditing: boolean,
     checked: boolean
@@ -54,7 +55,9 @@ const state: any = reactive({
 
 const getToDoList = () => {
     getToDoListRequest().then((response: ToDo[]) => {
+        console.log('=====getToDoList=====')
         console.log(response)
+        const result: ToDo[] = []
         state.toDoList = response
     }).catch((error: any) => {
         console.log(error)
@@ -93,16 +96,44 @@ const handleConfirmUpdateToDo = (item: ToDo) => {
             console.log(error)
         })
     }
+}
+
+
+const handleConfirmUpdateToDoToRedis = (item: ToDo) => {
+    if (item.contentName) {
+        todolistUpdateToRedisRequest({
+            id: item.id,
+            content: item.content,
+            contentName: item.contentName
+        }).then((response: any) => {
+            item.id = response.id
+            item.content = response.content
+            item.isEditing = false
+        }).catch((error: any) => {
+            console.log(error)
+        })
+    } else {
+        createToDoListRequest({
+            content: item.content
+        }).then((response: any) => {
+            item.id = response.id
+            item.content = response.content
+            item.isEditing = false
+        }).catch((error: any) => {
+            console.log(error)
+        })
+    }
 
 }
 
 const handleDeleteToDo = (item: ToDo) => {
-    deleteToDoListRequest({
-        id: item.id
-    }).then((response: any) => [
+    toDoListDeleteFromRedisRequest({
+        contentName: item.contentName
+    }).then(() => [
         getToDoList()
     ]).catch((error: any) => {
     })
+
 }
 
 const handleCreateToDo = () => {
@@ -118,6 +149,7 @@ const handleCreateToDo = () => {
 const handleCheckToDo = (item: ToDo) => {
     console.log(item)
     updateToDoListRequest({
+        id: item.id,
         checked: item.checked
     }).then((response: any) => {
         item.id = response.id

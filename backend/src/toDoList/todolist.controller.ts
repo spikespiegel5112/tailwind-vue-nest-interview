@@ -18,7 +18,8 @@ export class ToDoListController {
 
   @Get('get')
   findAll(): any {
-    return this.ToDoListService.findAll();
+    // return this.ToDoListService.findAll();
+    return this.ToDoListService.findAllFromRedis();
   }
 
   @Post('create')
@@ -26,18 +27,16 @@ export class ToDoListController {
     if (!post.content) {
       throw new HttpException('content为空', 401);
     }
-    return await this.ToDoListService.create({
-      content: post.content,
-    });
+    return await this.ToDoListService.createToRedis(post);
   }
 
-  @Put('update')
+  @Put('updateToRedis')
   async update(@Body() post) {
-    return await this.ToDoListService.updateById(post);
+    return await this.ToDoListService.updateByIdToRedis(post);
   }
 
-  @Delete('delete')
-  async remove(@Body() id) {
-    return await this.ToDoListService.remove(id);
+  @Delete('deleteToDoListFromRedis')
+  async deleteToDoListFromRedis(@Body() post) {
+    return await this.ToDoListService.deleteToDoListByContentNameFromRedis(post);
   }
 }

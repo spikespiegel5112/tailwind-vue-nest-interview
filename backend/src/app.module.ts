@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ToDoListModule } from './ToDoList/todolist.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { RedisModule } from '@nestjs-modules/ioredis';
 import { DataSource } from 'typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import envConfig from '../config/env';
@@ -12,6 +13,13 @@ import envConfig from '../config/env';
       envFilePath: [envConfig.path],
     }),
     ToDoListModule,
+    RedisModule.forRoot({
+      type: 'single',
+      url: 'redis://localhost:6379',
+      options: {
+        password: '123456',
+      },
+    }),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'baobaojs.com',

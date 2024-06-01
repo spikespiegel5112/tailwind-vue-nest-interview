@@ -7,6 +7,9 @@ export class ToDoListEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ nullable: false })
+  contentName?: string;
+
   @Column({ nullable: false, default: false })
   checked?: boolean;
 
@@ -14,8 +17,8 @@ export class ToDoListEntity {
   content?: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  create_time: Date;
+  createTime: Date;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  update_time: Date;
+  updateTime: Date;
 }

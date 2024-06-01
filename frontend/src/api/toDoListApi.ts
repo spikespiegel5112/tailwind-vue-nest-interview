@@ -28,9 +28,25 @@ export const updateToDoListRequest = (data: any) => {
   })
 }
 
-export const deleteToDoListRequest = (data: any) => {
+export const todolistUpdateToRedisRequest = (data: any) => {
+  return service({
+    url: `/todolist/updateToRedis`,
+    method: 'PUT',
+    data
+  })
+}
+
+export const toDoListDeleteRequest = (data: any) => {
   return service({
     url: `/todolist/delete`,
+    method: 'DELETE',
+    data
+  })
+}
+
+export const toDoListDeleteFromRedisRequest = (data: any) => {
+  return service({
+    url: `/todolist/deleteToDoListFromRedis`,
     method: 'DELETE',
     data
   })
