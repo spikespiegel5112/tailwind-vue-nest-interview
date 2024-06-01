@@ -32,11 +32,13 @@ export class ToDoListController {
 
   @Put('updateToRedis')
   async update(@Body() post) {
-    return await this.ToDoListService.updateByIdToRedis(post);
+    return await this.ToDoListService.updateByContentNameToRedis(post);
   }
 
   @Delete('deleteToDoListFromRedis')
   async deleteToDoListFromRedis(@Body() post) {
-    return await this.ToDoListService.deleteToDoListByContentNameFromRedis(post);
+    return await this.ToDoListService.deleteToDoListByContentNameFromRedis(
+      post,
+    );
   }
 }

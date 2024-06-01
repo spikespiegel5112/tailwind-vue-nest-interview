@@ -8,12 +8,15 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class ToDoListService {
+  hashName: string;
   constructor(
     @InjectRedis()
     private readonly redis: Redis,
     @InjectRepository(ToDoListEntity)
     private toDoListRepository: Repository<ToDoListEntity>,
-  ) {}
+  ) {
+    this.hashName = 'todolist';
+  }
   findAll(): Promise<ToDoListEntity[]> {
     return this.toDoListRepository.find();
   }
@@ -52,7 +55,11 @@ export class ToDoListService {
         content: post.content,
         checked: false,
       };
-      await this.redis.hset('todolist', contentName, JSON.stringify(payload));
+      await this.redis.hset(
+        this.hashName,
+        contentName,
+        JSON.stringify(payload),
+      );
     } catch (error: any) {
       throw new BadRequestException(error.message);
     }
@@ -64,10 +71,17 @@ export class ToDoListService {
 
   // 查询
   async findAllFromRedis(): Promise<object> {
+    console.log(this.hashName);
     let resultFromRedis: Record<string, string>;
     try {
-      resultFromRedis = await this.redis.hgetall('todolist');
+      resultFromRedis = await this.redis.hgetall(this.hashName);
     } catch (error: any) {
+      const fields: object = this.redis.hkeys(this.hashName);
+      console.log(fields);
+      Object.keys(fields).forEach((item: any) => {
+        this.redis.hdel(this.hashName, item);
+      });
+
       throw new BadRequestException(error.message);
     }
     const result = [];
@@ -81,8 +95,8 @@ export class ToDoListService {
   }
 
   // 更新
-  async updateByIdToRedis(post): Promise<any> {
-    const existPost = await this.redis.hget('todolist', post.contentName);
+  async updateByContentNameToRedis(post): Promise<any> {
+    const existPost = await this.redis.hget(this.hashName, post.contentName);
     console.log(existPost);
     const existPostObject = JSON.parse(existPost);
     if (!existPost) {
@@ -90,21 +104,26 @@ export class ToDoListService {
     }
     const payload = {
       ...existPostObject,
+      checked: post.checked,
       content: post.content,
     };
     await this.redis.hset(
-      'todolist',
+      this.hashName,
       post.contentName,
       JSON.stringify(payload),
     );
-    return payload;
+    const data: string = await this.redis.hget(this.hashName, post.contentName);
+    console.log(data);
+    return {
+      ...JSON.parse(data),
+      contentName: post.contentName,
+    };
   }
 
   // 删除
   async deleteToDoListByContentNameFromRedis(post): Promise<any> {
     const existPost = await this.redis.hget('todolist', post.contentName);
     console.log(existPost);
-    const existPostObject = JSON.parse(existPost);
     if (!existPost) {
       throw new HttpException(`id为${post.contentName}的内容不存在`, 401);
     }

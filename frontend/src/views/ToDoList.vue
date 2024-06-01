@@ -8,7 +8,7 @@
                 <li v-for="(item, index) in state.toDoList" :key="index"
                     class="flex mt-2 mb-2 transition-all items-center border-b-2" :class="activeStyle(item)">
                     <input type="checkbox" class="inline-flex form-checkbox rounded text-blue-1000 text-2xl"
-                        v-model="item.checked" @change="handleCheckToDo(item)" />
+                        :disabled="!item.contentName" v-model="item.checked" @change="handleCheckToDo(item)" />
                     <input v-if="item.isEditing" type="textarea"
                         class="inline-flex flex-1 h-10 ml-4 p-0 bg-black leading-7  bg-transparent focus:border-transparent focus:outline-none"
                         v-model="item.content">
@@ -98,16 +98,30 @@ const handleConfirmUpdateToDo = (item: ToDo) => {
     }
 }
 
+const handleCheckToDo = (item: ToDo) => {
+    console.log(item)
+    todolistUpdateToRedisRequest({
+        contentName: item.contentName,
+        checked: item.checked,
+        content: item.content,
+    }).then((response: any) => {
+        item.contentName = response.contentName
+        item.checked = response.checked
+    }).catch((error: any) => {
+        console.log(error)
+    })
+}
 
 const handleConfirmUpdateToDoToRedis = (item: ToDo) => {
     if (item.contentName) {
         todolistUpdateToRedisRequest({
-            id: item.id,
+            checked: item.checked,
             content: item.content,
             contentName: item.contentName
         }).then((response: any) => {
             item.id = response.id
             item.content = response.content
+            item.contentName = response.contentName
             item.isEditing = false
         }).catch((error: any) => {
             console.log(error)
@@ -118,6 +132,7 @@ const handleConfirmUpdateToDoToRedis = (item: ToDo) => {
         }).then((response: any) => {
             item.id = response.id
             item.content = response.content
+            item.contentName = response.contentName
             item.isEditing = false
         }).catch((error: any) => {
             console.log(error)
@@ -146,20 +161,6 @@ const handleCreateToDo = () => {
 
 }
 
-const handleCheckToDo = (item: ToDo) => {
-    console.log(item)
-    updateToDoListRequest({
-        id: item.id,
-        checked: item.checked
-    }).then((response: any) => {
-        item.id = response.id
-        item.checked = response.checked
-        item.isEditing = false
-    }).catch((error: any) => {
-        console.log(error)
-    })
-}
-
 onMounted(() => {
     getToDoList()
 })
@@ -168,10 +169,13 @@ onMounted(() => {
 
 <style>
 @media (min-width: 1024px) {
-    .about {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
+    .todolist_container {
+        width: 100%;
+    }
+
+    .todolist_container {
+        margin: 0 auto;
+        width: 30rem;
     }
 }
 </style>
