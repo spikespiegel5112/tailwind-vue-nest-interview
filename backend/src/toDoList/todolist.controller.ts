@@ -50,4 +50,9 @@ export class ToDoListController {
   async synchronizeData() {
     return await this.ToDoListService.synchronizeData();
   }
+
+  @Post('synchronizeDataToRedis')
+  async synchronizeDataToRedis(@Body() payload) {
+    return await this.ToDoListService.synchronizeDataToRedis(payload);
+  }
 }

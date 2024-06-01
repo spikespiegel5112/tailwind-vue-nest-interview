@@ -3,7 +3,7 @@
         <div class="about mb-5" @click="handleCreateToDo">
             <span class="inline-block text-2xl">New to do</span>
         </div>
-        <div class="about mb-5" @click="handleSynchronize">
+        <div class="about mb-5" @click="handleSynchronizeToDatabase">
             <span class="inline-block text-2xl">Synchronize</span>
         </div>
 
@@ -38,9 +38,10 @@
 </template>
 
 <script lang="tsx" setup>
-import { computed, onMounted, reactive } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive } from 'vue'
 
-import { getToDoListRequest, createToDoListRequest, updateToDoListRequest, synchronizeDataRequest, toDoListGetFromRedisRequest, todolistUpdateToRedisRequest, toDoListDeleteFromRedisRequest } from '@/api/toDoListApi'
+import { getToDoListRequest, createToDoListRequest, updateToDoListRequest, synchronizeDataRequest, toDoListGetFromRedisRequest, todolistUpdateToRedisRequest, toDoListDeleteFromRedisRequest, synchronizeDataToRedisRequest } from '@/api/toDoListApi'
+import { debug } from 'console';
 
 interface ToDo {
     id: number,
@@ -68,15 +69,23 @@ const getToDoListFromRedis = () => {
     })
 }
 
-const getToDoList = () => {
-    getToDoListRequest().then((response: ToDo[]) => {
-        console.log('=====getToDoList=====')
-        console.log(response)
-        const result: ToDo[] = []
-        state.toDoList = response
-    }).catch((error: any) => {
-        console.log(error)
+const getToDoListPromise = () => {
+    return new Promise((resolve, reject) => {
+        getToDoListRequest().then((response: ToDo[]) => {
+            console.log('=====getToDoList=====')
+            console.log(response)
+            resolve(response)
+        }).catch((error: any) => {
+            console.log(error)
+            reject(error)
+        })
     })
+
+}
+
+const handleGetToDoList = async () => {
+    state.toDoList = await getToDoListPromise()
+    return state.toDoList
 }
 
 const activeStyle = (item: ToDo) => {
@@ -134,7 +143,7 @@ const handleDeleteToDo = (item: ToDo) => {
     toDoListDeleteFromRedisRequest({
         contentName: item.contentName
     }).then(() => [
-        getToDoList()
+        getToDoListFromRedis()
     ]).catch((error: any) => {
     })
 
@@ -150,17 +159,29 @@ const handleCreateToDo = () => {
 
 }
 
-const handleSynchronize = () => {
+const handleSynchronizeToDatabase = () => {
     synchronizeDataRequest().then((response: any) => {
-
         console.log(response)
     }).catch((error: any) => {
         console.log(error)
     })
 }
 
-onMounted(() => {
-    getToDoListFromRedis()
+const handleSynchronizeToRedis = async () => {
+    await handleGetToDoList()
+    synchronizeDataToRedisRequest(state.toDoList).then((response: any) => {
+        console.log(response)
+    }).catch((error: any) => {
+        console.log(error)
+    })
+}
+
+onMounted(async () => {
+    handleSynchronizeToRedis()
+})
+
+onBeforeUnmount(() => {
+
 })
 
 </script>

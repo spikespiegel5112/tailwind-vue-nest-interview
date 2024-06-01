@@ -130,23 +130,57 @@ export class ToDoListService {
   }
 
   async synchronizeData(): Promise<any> {
+    const allDatabaseData = await this.findAll();
+    console.log('=====allDatabaseData=====');
     const toDoListData = await this.redis.hgetall('todolist');
     console.log('=====synchronizeData=====');
-    Object.keys(toDoListData).forEach((item: any) => {
+    Object.keys(toDoListData).forEach(async (item: any) => {
       let data = JSON.parse(toDoListData[item]);
       data = {
         ...data,
         contentName: item,
       };
       if (data.isNew) {
-        this.create(data);
+        await this.create(data);
       } else {
-        this.updateByContentName(data);
+        console.log(data.content);
+        await this.updateByContentName(data);
       }
-      data.isNew = false;
-      console.log(data);
 
+      data.isNew = false;
       this.redis.hset(this.hashName, item, JSON.stringify(data));
+    });
+    const todolistArr = Object.keys(toDoListData).map((item2) => {
+      return {
+        ...JSON.parse(toDoListData[item2]),
+        contentName: item2,
+      };
+    });
+    const deleteList: any[] = allDatabaseData.filter((item: ToDoListEntity) => {
+      return !todolistArr.some(
+        (item2: any) => item2.contentName === item.contentName,
+      );
+    });
+    console.log('======deleteList=====');
+    console.log(deleteList);
+    deleteList.forEach(async (item: ToDoListEntity) => {
+      await this.toDoListRepository.remove(item);
+    });
+    return {};
+  }
+
+  async synchronizeDataToRedis(payload: any[]): Promise<any> {
+    console.log('=====synchronizeData=====');
+    payload.forEach(async (item: any) => {
+      await this.redis.hset(
+        this.hashName,
+        item.contentName,
+        JSON.stringify({
+          checked: item.checked,
+          content: item.content,
+          isNew: false,
+        }),
+      );
     });
     return {};
   }

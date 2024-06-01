@@ -65,3 +65,11 @@ export const synchronizeDataRequest = () => {
     method: 'POST'
   })
 }
+
+export const synchronizeDataToRedisRequest = (payload: any[]) => {
+  return service({
+    url: `/todolist/synchronizeDataToRedis`,
+    method: 'POST',
+    data: payload
+  })
+}
