@@ -3,6 +3,10 @@
         <div class="about mb-5" @click="handleCreateToDo">
             <span class="inline-block text-2xl">New to do</span>
         </div>
+        <div class="about mb-5" @click="handleSynchronize">
+            <span class="inline-block text-2xl">Synchronize</span>
+        </div>
+
         <div class="main">
             <ul class="pl-1">
                 <li v-for="(item, index) in state.toDoList" :key="index"
@@ -36,7 +40,7 @@
 <script lang="tsx" setup>
 import { computed, onMounted, reactive } from 'vue'
 
-import { getToDoListRequest, createToDoListRequest, updateToDoListRequest, toDoListDeleteRequest, checkToDoListRequest, todolistUpdateToRedisRequest, toDoListDeleteFromRedisRequest } from '@/api/toDoListApi'
+import { getToDoListRequest, createToDoListRequest, updateToDoListRequest, synchronizeDataRequest, toDoListGetFromRedisRequest, todolistUpdateToRedisRequest, toDoListDeleteFromRedisRequest } from '@/api/toDoListApi'
 
 interface ToDo {
     id: number,
@@ -52,6 +56,17 @@ const state: any = reactive({
         content: ''
     }
 })
+
+const getToDoListFromRedis = () => {
+    toDoListGetFromRedisRequest().then((response: ToDo[]) => {
+        console.log('=====getToDoList=====')
+        console.log(response)
+        const result: ToDo[] = []
+        state.toDoList = response
+    }).catch((error: any) => {
+        console.log(error)
+    })
+}
 
 const getToDoList = () => {
     getToDoListRequest().then((response: ToDo[]) => {
@@ -71,31 +86,6 @@ const activeStyle = (item: ToDo) => {
 const handleEditToDo = (item: ToDo) => {
     item.isEditing = !item.isEditing
     state.formData.content = item.content
-}
-
-const handleConfirmUpdateToDo = (item: ToDo) => {
-    if (item.id) {
-        updateToDoListRequest({
-            id: item.id,
-            content: item.content
-        }).then((response: any) => {
-            item.id = response.id
-            item.content = response.content
-            item.isEditing = false
-        }).catch((error: any) => {
-            console.log(error)
-        })
-    } else {
-        createToDoListRequest({
-            content: item.content
-        }).then((response: any) => {
-            item.id = response.id
-            item.content = response.content
-            item.isEditing = false
-        }).catch((error: any) => {
-            console.log(error)
-        })
-    }
 }
 
 const handleCheckToDo = (item: ToDo) => {
@@ -138,7 +128,6 @@ const handleConfirmUpdateToDoToRedis = (item: ToDo) => {
             console.log(error)
         })
     }
-
 }
 
 const handleDeleteToDo = (item: ToDo) => {
@@ -161,8 +150,17 @@ const handleCreateToDo = () => {
 
 }
 
+const handleSynchronize = () => {
+    synchronizeDataRequest().then((response: any) => {
+
+        console.log(response)
+    }).catch((error: any) => {
+        console.log(error)
+    })
+}
+
 onMounted(() => {
-    getToDoList()
+    getToDoListFromRedis()
 })
 
 </script>

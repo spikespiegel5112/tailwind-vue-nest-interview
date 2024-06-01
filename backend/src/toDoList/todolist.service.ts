@@ -25,14 +25,13 @@ export class ToDoListService {
   }
   // 创建
   async create(post: Partial<ToDoListEntity>): Promise<ToDoListEntity> {
-    console.log(post);
     return await this.toDoListRepository.save(post);
   }
   // 更新
-  async updateById(post): Promise<ToDoListEntity> {
+  async updateByContentName(post): Promise<ToDoListEntity> {
     const existPost = await this.toDoListRepository.findOne({
       where: {
-        id: post.id,
+        contentName: post.contentName,
       },
     });
     if (!existPost) {
@@ -41,6 +40,8 @@ export class ToDoListService {
     const updatePost = this.toDoListRepository.merge(existPost, post);
     return this.toDoListRepository.save(updatePost);
   }
+
+  // 删除
   async remove(id: number): Promise<void> {
     await this.toDoListRepository.delete(id);
   }
@@ -54,6 +55,7 @@ export class ToDoListService {
       const payload = {
         content: post.content,
         checked: false,
+        isNew: true,
       };
       await this.redis.hset(
         this.hashName,
@@ -76,12 +78,6 @@ export class ToDoListService {
     try {
       resultFromRedis = await this.redis.hgetall(this.hashName);
     } catch (error: any) {
-      const fields: object = this.redis.hkeys(this.hashName);
-      console.log(fields);
-      Object.keys(fields).forEach((item: any) => {
-        this.redis.hdel(this.hashName, item);
-      });
-
       throw new BadRequestException(error.message);
     }
     const result = [];
@@ -131,5 +127,27 @@ export class ToDoListService {
     return {
       contentName: post.contentName,
     };
+  }
+
+  async synchronizeData(): Promise<any> {
+    const toDoListData = await this.redis.hgetall('todolist');
+    console.log('=====synchronizeData=====');
+    Object.keys(toDoListData).forEach((item: any) => {
+      let data = JSON.parse(toDoListData[item]);
+      data = {
+        ...data,
+        contentName: item,
+      };
+      if (data.isNew) {
+        this.create(data);
+      } else {
+        this.updateByContentName(data);
+      }
+      data.isNew = false;
+      console.log(data);
+
+      this.redis.hset(this.hashName, item, JSON.stringify(data));
+    });
+    return {};
   }
 }

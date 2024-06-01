@@ -18,7 +18,11 @@ export class ToDoListController {
 
   @Get('get')
   findAll(): any {
-    // return this.ToDoListService.findAll();
+    return this.ToDoListService.findAll();
+  }
+
+  @Get('getFromRedis')
+  findAllFromRedis(): any {
     return this.ToDoListService.findAllFromRedis();
   }
 
@@ -40,5 +44,10 @@ export class ToDoListController {
     return await this.ToDoListService.deleteToDoListByContentNameFromRedis(
       post,
     );
+  }
+
+  @Post('synchronizeData')
+  async synchronizeData() {
+    return await this.ToDoListService.synchronizeData();
   }
 }

@@ -12,6 +12,13 @@ export const getToDoListRequest = () => {
   })
 }
 
+export const toDoListGetFromRedisRequest = () => {
+  return service({
+    url: '/todolist/getFromRedis',
+    method: 'GET'
+  })
+}
+
 export const createToDoListRequest = (params: any) => {
   return service({
     url: '/todolist/create',
@@ -49,5 +56,12 @@ export const toDoListDeleteFromRedisRequest = (data: any) => {
     url: `/todolist/deleteToDoListFromRedis`,
     method: 'DELETE',
     data
+  })
+}
+
+export const synchronizeDataRequest = () => {
+  return service({
+    url: `/todolist/synchronizeData`,
+    method: 'POST'
   })
 }
